@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS documents (
   kind         TEXT NOT NULL DEFAULT 'altro',
   storage_path TEXT,
   content      TEXT NOT NULL DEFAULT '',
+  raw_b64      TEXT,
   chars        INTEGER NOT NULL DEFAULT 0,
   status       TEXT NOT NULL DEFAULT 'ok',
   warning      TEXT,
@@ -144,6 +145,11 @@ function rawClient(): Client {
   return client;
 }
 
+/** Colonne aggiunte dopo la prima release: applicate solo se mancanti. */
+const ADDED_COLUMNS: { table: string; column: string; definition: string }[] = [
+  { table: "documents", column: "raw_b64", definition: "TEXT" },
+];
+
 async function migrate(): Promise<void> {
   const c = rawClient();
   const statements = SCHEMA.split(";")
@@ -151,6 +157,13 @@ async function migrate(): Promise<void> {
     .filter(Boolean);
   for (const statement of statements) {
     await c.execute(statement);
+  }
+  for (const { table, column, definition } of ADDED_COLUMNS) {
+    const info = await c.execute(`PRAGMA table_info(${table})`);
+    const exists = info.rows.some((row) => String(row.name) === column);
+    if (!exists) {
+      await c.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    }
   }
   await seedAllowlist(c);
 }

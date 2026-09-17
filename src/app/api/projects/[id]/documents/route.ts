@@ -9,7 +9,7 @@ import { audit } from "@/lib/auth/allowlist";
 import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 export async function GET(_request: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -65,8 +65,18 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       try {
         storagePath = await storeFile(id, documentId, file.name, buffer);
       } catch (error) {
-        console.error("Salvataggio file non riuscito:", error);
+        // Filesystem non scrivibile (deploy serverless): non è un errore fatale.
+        console.warn("Archiviazione su disco non disponibile:", error);
       }
+
+      // Un PDF senza testo estraibile serve a Claude come immagine: se il disco
+      // non è persistente lo conserviamo nel database, entro il limite previsto.
+      const isVisualPdf =
+        env.nativePdf &&
+        extraction.status !== "ok" &&
+        file.name.toLowerCase().endsWith(".pdf") &&
+        file.size <= env.nativePdfMaxMb * 1024 * 1024;
+      const rawB64 = isVisualPdf ? buffer.toString("base64") : null;
 
       await insertDocument({
         project_id: id,
@@ -76,6 +86,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
         kind,
         storage_path: storagePath,
         content: extraction.text,
+        raw_b64: rawB64,
         chars: extraction.text.length,
         status: extraction.status,
         warning: extraction.warning,

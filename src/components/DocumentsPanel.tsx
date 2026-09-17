@@ -31,6 +31,13 @@ export default function DocumentsPanel({ projectId, documents, maxMb }: Props) {
 
     try {
       const res = await fetch(`/api/projects/${projectId}/documents`, { method: "POST", body });
+      if (res.status === 413) {
+        // Limite imposto dalla piattaforma di hosting, non dall'applicazione.
+        setError(
+          `File troppo grande per il server (limite ${maxMb} MB per invio). Carica i file uno alla volta, oppure comprimi il PDF.`,
+        );
+        return;
+      }
       const data = await res.json();
       if (!res.ok) setError(data.error ?? "Caricamento non riuscito.");
       else setResults(data.results ?? []);

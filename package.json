@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup": "node scripts/setup.mjs",
+    "deploy": "bash scripts/deploy-vercel.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

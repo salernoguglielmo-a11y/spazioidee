@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { env } from "../env";
-import { listDocuments } from "../data/documents";
+import { getDocumentRawB64, listDocuments } from "../data/documents";
 import { listAnalyses, listInsights, listQuestions } from "../data/analyses";
 import { readStoredFile } from "../documents/storage";
 import { getModule } from "./modules";
@@ -84,20 +84,17 @@ export async function buildProjectContext(project: Project): Promise<BuiltContex
       (d) =>
         d.status !== "ok" &&
         d.filename.toLowerCase().endsWith(".pdf") &&
-        d.storage_path &&
         d.size <= env.nativePdfMaxMb * 1024 * 1024,
     );
     for (const doc of visualPdfs.slice(0, env.nativePdfMaxDocs)) {
-      const buffer = await readStoredFile(doc.storage_path!);
-      if (!buffer) continue;
+      // Su disco quando c'è; altrimenti dalla copia nel database (serverless).
+      const buffer = doc.storage_path ? await readStoredFile(doc.storage_path) : null;
+      const data = buffer ? buffer.toString("base64") : await getDocumentRawB64(doc.id);
+      if (!data) continue;
       blocks.push({
         type: "document",
         title: doc.filename,
-        source: {
-          type: "base64",
-          media_type: "application/pdf",
-          data: buffer.toString("base64"),
-        },
+        source: { type: "base64", media_type: "application/pdf", data },
       });
       nativePdfs += 1;
     }

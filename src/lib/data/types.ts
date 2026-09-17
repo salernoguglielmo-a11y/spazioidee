@@ -23,6 +23,8 @@ export type DocumentRecord = {
   kind: string;
   storage_path: string | null;
   content: string;
+  /** PDF senza testo estraibile, conservato per l'invio nativo al modello. */
+  raw_b64: string | null;
   chars: number;
   status: "ok" | "vuoto" | "errore";
   warning: string | null;

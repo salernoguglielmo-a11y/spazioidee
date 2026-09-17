@@ -65,7 +65,8 @@ Servono Node.js 20+ e una chiave API Anthropic.
 
 ```bash
 npm install
-cp .env.example .env.local     # poi compila i valori (sotto)
+npm run setup                  # crea .env.local con AUTH_SECRET già generato
+# compila ANTHROPIC_API_KEY in .env.local
 npm run dev                    # http://localhost:3000
 ```
 
@@ -107,15 +108,20 @@ Ogni accesso, ogni analisi e ogni modifica all'allowlist finiscono nel registro 
 
 ### Vercel + Turso (nessun server da gestire)
 
-1. Crea un database su [Turso](https://turso.tech) e prendi URL e token.
-2. Importa il repository su Vercel e imposta le variabili d'ambiente di `.env.example`, con
-   `DATABASE_URL="libsql://..."` e `DATABASE_AUTH_TOKEN="..."`.
-3. `APP_URL` deve essere l'indirizzo pubblico (`https://...`), altrimenti i link di accesso non funzionano.
-4. Configura `RESEND_API_KEY` (o `SMTP_URL`) per l'invio reale delle email.
+Procedura completa, passo per passo: **[DEPLOY.md](DEPLOY.md)** — chiave Claude, database,
+invio email, pubblicazione e verifiche. In sintesi:
 
-Nota: su Vercel il filesystem non è persistente. Il testo estratto dai documenti è salvato nel
-database e resta disponibile; il **file originale** no, quindi l'invio nativo dei PDF grafici
-funziona solo con un disco persistente. Su disco effimero conviene impostare `NATIVE_PDF="false"`.
+1. Database su [Turso](https://turso.tech): `DATABASE_URL="libsql://..."` e `DATABASE_AUTH_TOKEN`.
+2. Repository importato su Vercel con le variabili di `.env.example`.
+3. `APP_URL` uguale all'indirizzo pubblico definitivo, altrimenti i link di accesso non funzionano.
+4. `SMTP_URL` o `RESEND_API_KEY` per l'invio reale delle email.
+
+Da riga di comando: `npm run setup` e poi `npm run deploy`.
+
+Due vincoli della piattaforma di cui tenere conto: il corpo di una richiesta non può superare
+~4,5 MB (quindi `MAX_UPLOAD_MB="4"`) e il filesystem non è persistente. Il testo estratto vive nel
+database; i PDF privi di testo selezionabile vengono conservati anch'essi nel database, così
+l'invio nativo a Claude continua a funzionare senza disco.
 
 ### Docker / VPS (dati tutti tuoi)
 

@@ -5,7 +5,7 @@ import { sseResponse } from "@/lib/sse";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-export const maxDuration = 800;
+export const maxDuration = 300;
 
 export async function POST(request: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
