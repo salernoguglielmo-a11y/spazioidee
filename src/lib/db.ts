@@ -159,10 +159,17 @@ async function migrate(): Promise<void> {
     await c.execute(statement);
   }
   for (const { table, column, definition } of ADDED_COLUMNS) {
-    const info = await c.execute(`PRAGMA table_info(${table})`);
-    const exists = info.rows.some((row) => String(row.name) === column);
-    if (!exists) {
+    try {
+      const info = await c.execute(`PRAGMA table_info(${table})`);
+      if (info.rows.some((row) => String(row.name) === column)) continue;
+    } catch {
+      // Non tutte le piattaforme espongono PRAGMA: si prova direttamente l'ALTER.
+    }
+    try {
       await c.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    } catch (error) {
+      // La colonna esiste già: condizione normale, non un errore.
+      if (!/duplicate column/i.test(String(error))) throw error;
     }
   }
   await seedAllowlist(c);

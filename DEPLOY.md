@@ -172,7 +172,10 @@ istruzioni DNS, e poi rimetti `APP_URL` su quel dominio.
 4. Crea un progetto, carica un documento, apri il modulo **Mercato**: con la chiave configurata
    vedi il testo comparire in streaming; senza chiave trovi il riquadro per copiare il prompt e
    incollare la risposta.
-5. In `/admin` trovi il registro accessi e puoi autorizzare altri indirizzi.
+5. Apri **`/stato`**: è la pagina di diagnostica. Ti dice, riga per riga, se database, chiave di
+   firma, indirizzo pubblico, modalità di analisi, invio email e allowlist sono a posto — e cosa
+   fare per ciascun punto che non lo è. È il primo posto da guardare se qualcosa non funziona.
+6. In `/admin` trovi il registro accessi e puoi autorizzare altri indirizzi.
 
 ### Se qualcosa non va
 

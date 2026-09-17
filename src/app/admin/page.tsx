@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AllowlistManager from "@/components/AllowlistManager";
 import { requirePageUser } from "@/lib/auth/session";
 import { listAllowlist } from "@/lib/auth/allowlist";
@@ -33,12 +34,18 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Accessi</h1>
-        <p className="muted mt-1 text-sm">
-          Solo gli indirizzi presenti in questo elenco possono entrare. Non esiste registrazione
-          libera: l&apos;accesso avviene con un link monouso inviato all&apos;indirizzo autorizzato.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Accessi</h1>
+          <p className="muted mt-1 text-sm">
+            Solo gli indirizzi presenti in questo elenco possono entrare. Non esiste registrazione
+            libera: l&apos;accesso avviene con un link monouso inviato all&apos;indirizzo
+            autorizzato.
+          </p>
+        </div>
+        <Link href="/stato" className="btn">
+          Stato del sistema
+        </Link>
       </div>
 
       {missing.length ? (

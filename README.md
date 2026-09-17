@@ -209,6 +209,9 @@ Dettagli tecnici che contano:
   interfaccia invece di avvenire in silenzio.
 - **"Cosa riceve Claude"**: nella sezione Documenti puoi ispezionare il contesto esatto inviato al
   modello. Nessuna scatola nera.
+- **Pagina di stato** (`/stato`, per amministratori): verifica database, sessioni, indirizzo
+  pubblico, modalità di analisi, invio email, archiviazione e allowlist, con l'indicazione di cosa
+  sistemare.
 
 ---
 
