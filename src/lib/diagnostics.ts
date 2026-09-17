@@ -92,15 +92,25 @@ export async function runDiagnostics(): Promise<Check[]> {
 
   // Email
   const channel = env.resendApiKey ? "Resend" : env.smtpUrl ? "SMTP" : null;
+  const local =
+    process.env.NODE_ENV !== "production" || /localhost|127\.0\.0\.1/.test(env.appUrl);
   checks.push(
     channel
       ? { name: "Invio email", state: "ok", detail: `${channel} · mittente ${env.mailFrom}` }
-      : {
-          name: "Invio email",
-          state: "attenzione",
-          detail: "Nessun provider configurato: il link di accesso viene mostrato a schermo",
-          hint: "Va bene per provare, non per l'uso reale. Imposta SMTP_URL o RESEND_API_KEY.",
-        },
+      : local
+        ? {
+            name: "Invio email",
+            state: "attenzione",
+            detail: "Nessun provider configurato: in locale il link viene mostrato a schermo",
+            hint: "Prima di pubblicare imposta SMTP_URL o RESEND_API_KEY.",
+          }
+        : {
+            name: "Invio email",
+            state: "errore",
+            detail: "Nessun provider configurato: nessuno può ricevere il link di accesso",
+            hint:
+              "Su un server pubblico il link non viene mai mostrato a schermo, per sicurezza. Imposta SMTP_URL o RESEND_API_KEY.",
+          },
   );
 
   // Disco

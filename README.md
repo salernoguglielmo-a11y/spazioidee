@@ -95,8 +95,9 @@ ADMIN_EMAILS="tua.email@dominio.it"    # tu
 ANTHROPIC_API_KEY="sk-ant-..."         # console.anthropic.com
 ```
 
-Senza un servizio email configurato, il link di accesso viene mostrato a video e stampato nei log:
-va bene in locale, non in produzione.
+In locale, senza servizio email configurato, il link di accesso viene mostrato a video e stampato
+nei log. In produzione questo non avviene mai: senza SMTP o Resend l'accesso resta bloccato,
+perché un link a schermo sarebbe un accesso libero.
 
 ---
 

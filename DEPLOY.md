@@ -118,8 +118,10 @@ Si entra con un link monouso: serve un modo per recapitarlo. Due strade.
 > ti sei registrato: andrebbe bene per te, non per `g.salerno@skilldonor.org`. Per questo, finché
 > il dominio non è verificato, la strada Gmail è preferibile.
 
-Se non configuri nulla, l'accesso funziona ugualmente ma il link viene mostrato a schermo: comodo
-per provare, da non lasciare in produzione.
+Questo passo **non è facoltativo in produzione**: su un server pubblico l'applicazione si rifiuta
+di mostrare il link a schermo (sarebbe un accesso libero per chiunque conosca un indirizzo
+autorizzato) e l'accesso resta bloccato finché non configuri SMTP o Resend. In locale, invece, il
+link compare a schermo e puoi provare tutto senza email.
 
 ---
 

@@ -37,7 +37,24 @@ export async function POST(request: Request) {
   await audit(email, "auth.link_sent", email, delivery.channel);
 
   if (!delivery.delivered && delivery.devUrl) {
-    // Nessun provider email configurato: link mostrato a video (solo sviluppo).
+    // Il link a schermo è accettabile solo in locale: in rete sarebbe un accesso
+    // libero per chiunque conosca un indirizzo autorizzato.
+    const local =
+      process.env.NODE_ENV !== "production" ||
+      env.appUrl.includes("localhost") ||
+      env.appUrl.includes("127.0.0.1");
+
+    if (!local) {
+      console.error("Invio email non configurato: accesso bloccato in produzione.");
+      return NextResponse.json(
+        {
+          error:
+            "L'invio delle email non è configurato su questo server, quindi non posso recapitare il link di accesso. Imposta SMTP_URL o RESEND_API_KEY e rilancia il deploy.",
+        },
+        { status: 503 },
+      );
+    }
+
     genericResponse.devUrl = delivery.devUrl;
     genericResponse.message =
       "Nessun servizio email è configurato: usa il link qui sotto per entrare. Configura RESEND_API_KEY o SMTP_URL per l'uso reale.";
