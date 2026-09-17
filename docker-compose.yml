@@ -1,0 +1,16 @@
+services:
+  spazioidee:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      DATA_DIR: /data
+      DATABASE_URL: file:/data/spazioidee.db
+    volumes:
+      - spazioidee-data:/data
+    restart: unless-stopped
+
+volumes:
+  spazioidee-data:

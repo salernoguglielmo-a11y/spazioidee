@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --panel-2: #f1f3f6;
+  --border: #e2e5ea;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #1e293b;
+  --accent-soft: #e8ecf3;
+  --ok: #15803d;
+  --good: #0284c7;
+  --warn: #b45309;
+  --bad: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f16;
+    --panel: #121822;
+    --panel-2: #172032;
+    --border: #253044;
+    --text: #e6ebf3;
+    --muted: #93a1b5;
+    --accent: #e6ebf3;
+    --accent-soft: #1b2436;
+    --ok: #4ade80;
+    --good: #38bdf8;
+    --warn: #fbbf24;
+    --bad: #f87171;
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--panel-2);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--panel);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--muted);
+}
+
+.label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* Testo generato: markdown leggibile senza plugin di tipografia */
+.prose-si {
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+.prose-si h1,
+.prose-si h2,
+.prose-si h3,
+.prose-si h4 {
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 1.4em 0 0.5em;
+}
+.prose-si h1 { font-size: 1.45rem; }
+.prose-si h2 { font-size: 1.2rem; }
+.prose-si h3 { font-size: 1.02rem; }
+.prose-si h4 { font-size: 0.95rem; color: var(--muted); }
+.prose-si p { margin: 0.7em 0; }
+.prose-si ul,
+.prose-si ol { margin: 0.7em 0; padding-left: 1.3em; }
+.prose-si ul { list-style: disc; }
+.prose-si ol { list-style: decimal; }
+.prose-si li { margin: 0.3em 0; }
+.prose-si strong { font-weight: 700; }
+.prose-si em { font-style: italic; color: var(--muted); }
+.prose-si code {
+  background: var(--panel-2);
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+.prose-si pre {
+  background: var(--panel-2);
+  padding: 0.8em;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.prose-si blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 0.9em;
+  color: var(--muted);
+  margin: 0.8em 0;
+}
+.prose-si table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.86rem;
+}
+.prose-si th,
+.prose-si td {
+  border: 1px solid var(--border);
+  padding: 0.45em 0.6em;
+  text-align: left;
+  vertical-align: top;
+}
+.prose-si th { background: var(--panel-2); font-weight: 600; }
+.prose-si a { color: var(--good); text-decoration: underline; }
+.prose-si hr { border-top: 1px solid var(--border); margin: 1.5em 0; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; color: #000; }
+  .panel { border: none; }
+}

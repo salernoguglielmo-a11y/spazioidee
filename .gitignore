@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+.env
+.env.local
+data/*.db
+data/*.db-*
+data/uploads
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
