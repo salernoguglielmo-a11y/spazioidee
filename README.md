@@ -9,6 +9,23 @@ L'accesso è consentito **solo agli indirizzi email che decidi tu**.
 
 ---
 
+## Due modi di usarlo
+
+| | **Automatica** | **Manuale (costo zero)** |
+|---|---|---|
+| Serve | una chiave API Anthropic (credito prepagato, non un abbonamento) | nulla: basta il Claude che già usi, anche nel piano gratuito |
+| Analisi di un modulo | un clic, testo in streaming | copi il prompt preparato dall'app, lo incolli su claude.ai, riporti la risposta |
+| Ricerca web nei moduli | automatica, con fonti citate | la fa Claude nella conversazione, se abilitata |
+| Dialogo | chat integrata nel progetto | conversazione su claude.ai, con il contesto copiato dall'app |
+| Punteggi, domande, validazione, dossier | identici | identici |
+
+La modalità manuale non è una versione ridotta: cambia solo *come* il testo arriva al modello.
+Documenti, griglie di best practice, contesto accumulato, domande, punteggi e dossier restano gli
+stessi. Si attiva da sola quando `ANTHROPIC_API_KEY` non è configurata, e resta comunque
+disponibile come alternativa quando la chiave c'è.
+
+---
+
 ## Come funziona
 
 ```
@@ -202,5 +219,6 @@ Dettagli tecnici che contano:
   ciò che hai validato da ciò che non hai ancora verificato.
 - La ricerca web restituisce quello che trova in rete: le fonti sono citate proprio perché vanno
   controllate.
-- I costi delle chiamate API sono a consumo sul tuo account Anthropic: un'analisi completa su un
-  business plan medio costa tipicamente pochi centesimi per modulo, di più se la ricerca web è attiva.
+- In modalità automatica i costi sono a consumo sul tuo account Anthropic (credito prepagato, non
+  un abbonamento): tipicamente pochi centesimi per modulo, di più con la ricerca web attiva. In
+  modalità manuale non c'è alcun costo aggiuntivo.

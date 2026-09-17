@@ -5,7 +5,7 @@ import { listAnalyses, listQuestions } from "@/lib/data/analyses";
 import { listDocuments } from "@/lib/data/documents";
 import { computeReadiness } from "@/lib/analysis/scoring";
 import { ScoreBadge } from "@/components/Score";
-import { missingConfig } from "@/lib/env";
+import { apiEnabled, missingConfig } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +44,18 @@ export default async function DashboardPage() {
           + Nuovo progetto
         </Link>
       </div>
+
+      {!apiEnabled() ? (
+        <div className="panel p-4 text-sm">
+          <p className="font-semibold">Modalità manuale attiva</p>
+          <p className="muted mt-1">
+            Nessuna chiave API configurata: l&apos;applicazione prepara i prompt con documenti,
+            contesto e best practice, tu li porti nel tuo Claude e riporti qui la risposta. Punteggi,
+            domande, validazione e dossier funzionano comunque. Per l&apos;analisi automatica basta
+            aggiungere <code>ANTHROPIC_API_KEY</code>.
+          </p>
+        </div>
+      ) : null}
 
       {missing.length ? (
         <div className="panel p-4 text-sm" style={{ borderColor: "var(--warn)" }}>

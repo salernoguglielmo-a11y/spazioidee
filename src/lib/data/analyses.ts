@@ -126,6 +126,19 @@ export async function saveHumanVersion(
   );
 }
 
+/** Punteggio assegnato dalla persona: serve in modalità manuale. */
+export async function setScore(
+  projectId: string,
+  moduleId: string,
+  score: number | null,
+  confidence: string | null,
+): Promise<void> {
+  await run(
+    "UPDATE analyses SET score = ?, confidence = ?, updated_at = ? WHERE project_id = ? AND module_id = ?",
+    [score, confidence, nowIso(), projectId, moduleId],
+  );
+}
+
 export async function finalText(analysis: Analysis): Promise<string> {
   return analysis.human_markdown?.trim() ? analysis.human_markdown : analysis.ai_markdown;
 }

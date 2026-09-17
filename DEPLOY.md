@@ -4,11 +4,12 @@ Tempo richiesto: circa 30 minuti, quasi tutti di attesa. Serve solo il browser.
 Alla fine avrai un indirizzo tipo `https://spazioidee.vercel.app` accessibile solo dai tuoi
 due indirizzi email.
 
-Ordine consigliato: **chiave Claude → database → email → pubblicazione**.
+Ordine consigliato: **database → email → pubblicazione**. La chiave Claude è facoltativa:
+senza, l'applicazione funziona in modalità manuale (§1-bis) e non costa nulla.
 
 ---
 
-## 1. La chiave API di Claude
+## 1. La chiave API di Claude *(facoltativa)*
 
 È il punto che conta di più: senza questa chiave l'applicazione funziona ma non analizza nulla.
 
@@ -38,6 +39,39 @@ la ricerca web. Con 5 $ analizzi tranquillamente i primi progetti.
 
 Se preferisci spendere meno per le prime prove: in Vercel imposta `ANTHROPIC_MODEL` a
 `claude-sonnet-5` (2,5 volte più economico) oppure `ANTHROPIC_EFFORT` a `medium`.
+
+---
+
+## 1-bis. Farne a meno: la modalità manuale
+
+Se non vuoi aprire un credito API, **salta il passo 1 e non impostare `ANTHROPIC_API_KEY`**.
+L'applicazione passa da sola alla modalità manuale, e nel deploy metti `AI_MODE="auto"`
+(o `"manuale"` per forzarla anche in futuro).
+
+Come si lavora, in concreto:
+
+1. Apri il modulo che ti interessa e premi **Copia prompt con i documenti**. L'applicazione
+   assembla tutto: metodo di analisi, scheda progetto, testo dei documenti, griglia di best
+   practice del modulo, risposte che hai già dato, formato dell'output.
+2. Apri **claude.ai** (anche con il piano gratuito o l'abbonamento che già hai), incolla e invia.
+   Se i documenti sono lunghi, usa il pulsante **Copia solo istruzioni** e allega i file
+   direttamente alla conversazione.
+3. Copia la risposta di Claude e incollala nel riquadro **Incolla qui la risposta**.
+
+Da lì in poi non cambia nulla: l'applicazione estrae punteggio, punti di forza, criticità, azioni
+e domande, popola il dossier e riusa le tue risposte nei moduli successivi. Se il punteggio non
+compare nel testo, lo assegni tu con un campo dedicato.
+
+Anche il dialogo funziona: nella scheda **Dialogo** copi il contesto completo del progetto, discuti
+su claude.ai quanto vuoi, e riporti nell'applicazione le conclusioni che contano, così rientrano
+nelle analisi successive.
+
+Cosa perdi rispetto alla modalità automatica: lo streaming dentro l'applicazione, la ricerca web
+eseguita in automatico (su claude.ai la fai comunque tu) e qualche minuto di copia-incolla per
+modulo. Punteggi, domande, validazione e dossier sono identici.
+
+> Passare all'automatico più avanti è questione di un minuto: aggiungi `ANTHROPIC_API_KEY` fra le
+> variabili di Vercel e rilanci il deploy. Le analisi già fatte a mano restano dove sono.
 
 ---
 
@@ -103,7 +137,8 @@ per provare, da non lasciare in produzione.
    |---|---|
    | `AUTH_SECRET` | *una stringa casuale lunga (te ne genero una io, oppure `openssl rand -base64 48`)* |
    | `ADMIN_EMAILS` | `salernoguglielmo@gmail.com,g.salerno@skilldonor.org` |
-   | `ANTHROPIC_API_KEY` | la chiave `sk-ant-api03-…` del passo 1 |
+   | `ANTHROPIC_API_KEY` | la chiave `sk-ant-api03-…` del passo 1 — **omettila per la modalità manuale** |
+   | `AI_MODE` | `auto` |
    | `DATABASE_URL` | `libsql://…turso.io` del passo 2 |
    | `DATABASE_AUTH_TOKEN` | il token del passo 2 |
    | `SMTP_URL` *(o `RESEND_API_KEY`)* | quello del passo 3 |
@@ -134,8 +169,9 @@ istruzioni DNS, e poi rimetti `APP_URL` su quel dominio.
 2. Inserisci `salernoguglielmo@gmail.com` → arriva l'email → clic sul link → sei dentro.
 3. Prova con un indirizzo qualsiasi non autorizzato: la risposta è la stessa frase neutra, ma
    nessuna email parte e nessuno entra.
-4. Crea un progetto, carica un documento, avvia il modulo **Mercato**: se vedi il testo comparire
-   in streaming, la chiave Claude è a posto.
+4. Crea un progetto, carica un documento, apri il modulo **Mercato**: con la chiave configurata
+   vedi il testo comparire in streaming; senza chiave trovi il riquadro per copiare il prompt e
+   incollare la risposta.
 5. In `/admin` trovi il registro accessi e puoi autorizzare altri indirizzi.
 
 ### Se qualcosa non va
@@ -144,7 +180,7 @@ istruzioni DNS, e poi rimetti `APP_URL` su quel dominio.
 |---|---|
 | "Configurazione incompleta" in home | manca una variabile: la schermata dice quale |
 | Il link di accesso porta a `localhost` | `APP_URL` non aggiornato dopo il deploy (passo 5) |
-| L'analisi si ferma subito con un errore | chiave Claude assente, errata o senza credito |
+| L'analisi si ferma subito con un errore | chiave Claude errata o senza credito (se non ne hai una, usa la modalità manuale) |
 | L'analisi si interrompe a metà | durata massima della funzione: attiva **Fluid Compute** in Settings → Functions |
 | Il caricamento di un PDF grande fallisce | limite di Vercel (~4,5 MB per invio): comprimi il PDF o carica un file per volta |
 | Nessuna email ricevuta | credenziali SMTP errate, oppure Resend con mittente di prova verso un indirizzo diverso dal tuo |

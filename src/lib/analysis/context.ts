@@ -8,6 +8,8 @@ import type { Project } from "../data/types";
 
 export type BuiltContext = {
   blocks: Anthropic.ContentBlockParam[];
+  /** Lo stesso contesto in testo semplice, per la modalità manuale. */
+  text: string;
   warnings: string[];
   stats: { documents: number; chars: number; nativePdfs: number; answeredQuestions: number };
 };
@@ -149,14 +151,17 @@ export async function buildProjectContext(project: Project): Promise<BuiltContex
     ledger.push(`# Note e informazioni aggiunte dall'imprenditore\n${notes.join("\n")}`);
   }
 
+  const text = `${projectCard(project)}\n\n${ledger.join("\n\n")}`;
+
   blocks.push({
     type: "text",
-    text: `${projectCard(project)}\n\n${ledger.join("\n\n")}`,
+    text,
     cache_control: { type: "ephemeral" },
   });
 
   return {
     blocks,
+    text,
     warnings,
     stats: {
       documents: textDocs.length + nativePdfs,

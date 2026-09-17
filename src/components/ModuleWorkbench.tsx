@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "./Markdown";
+import ManualBridge from "./ManualBridge";
 import QuestionsPanel from "./QuestionsPanel";
 import { ScoreBadge, StatusBadge } from "./Score";
 import { consumeStream } from "@/lib/client/stream";
@@ -23,6 +24,10 @@ type Props = {
   analysis: Analysis | null;
   questions: (Question & { moduleName: string })[];
   answeredCount: number;
+  /** Analisi automatica disponibile (chiave API configurata). */
+  apiEnabled: boolean;
+  /** Ponte manuale verso claude.ai disponibile. */
+  manualEnabled: boolean;
 };
 
 export default function ModuleWorkbench({
@@ -31,6 +36,8 @@ export default function ModuleWorkbench({
   analysis,
   questions,
   answeredCount,
+  apiEnabled,
+  manualEnabled,
 }: Props) {
   const router = useRouter();
   const [running, setRunning] = useState(false);
@@ -44,6 +51,8 @@ export default function ModuleWorkbench({
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [manualScore, setManualScore] = useState("");
+  const [manualConfidence, setManualConfidence] = useState("media");
   const streamEnd = useRef<HTMLDivElement>(null);
 
   const current = analysis?.human_markdown?.trim() || analysis?.ai_markdown || "";
@@ -76,6 +85,17 @@ export default function ModuleWorkbench({
       },
     );
     setRunning(false);
+    router.refresh();
+  }
+
+  async function saveScore() {
+    setSaving(true);
+    await fetch(`/api/projects/${projectId}/analyses/${module.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ score: Number(manualScore), confidence: manualConfidence }),
+    });
+    setSaving(false);
     router.refresh();
   }
 
@@ -112,6 +132,34 @@ export default function ModuleWorkbench({
             {module.web ? <span className="badge">ricerca web attiva</span> : null}
           </div>
           <p className="muted mt-1 text-sm">{analysis?.summary ?? module.objective}</p>
+          {analysis && analysis.score === null ? (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="muted text-xs">
+                Punteggio non rilevato nel testo: assegnalo tu.
+              </span>
+              <input
+                className="input w-20"
+                type="number"
+                min={0}
+                max={100}
+                value={manualScore}
+                onChange={(e) => setManualScore(e.target.value)}
+                placeholder="0-100"
+              />
+              <select
+                className="select w-28"
+                value={manualConfidence}
+                onChange={(e) => setManualConfidence(e.target.value)}
+              >
+                <option value="bassa">fiducia bassa</option>
+                <option value="media">fiducia media</option>
+                <option value="alta">fiducia alta</option>
+              </select>
+              <button className="btn" onClick={saveScore} disabled={saving || manualScore === ""}>
+                Salva
+              </button>
+            </div>
+          ) : null}
           {analysis ? (
             <p className="muted mt-1 text-xs">
               Esecuzioni: {analysis.run_count} · Ultimo aggiornamento:{" "}
@@ -121,9 +169,11 @@ export default function ModuleWorkbench({
           ) : null}
         </div>
         <div className="flex flex-col gap-2">
-          <button className="btn btn-primary" onClick={run} disabled={running}>
-            {running ? "Analisi in corso…" : analysis ? "Rigenera analisi" : "Avvia analisi"}
-          </button>
+          {apiEnabled ? (
+            <button className="btn btn-primary" onClick={run} disabled={running}>
+              {running ? "Analisi in corso…" : analysis ? "Rigenera analisi" : "Avvia analisi"}
+            </button>
+          ) : null}
           <button className="btn" onClick={() => setShowFocus((v) => !v)} disabled={running}>
             {showFocus ? "Nascondi focus" : "Dai un focus"}
           </button>
@@ -273,6 +323,37 @@ export default function ModuleWorkbench({
             </div>
           ) : null}
         </div>
+      ) : null}
+
+      {manualEnabled ? (
+        apiEnabled ? (
+          <details className="panel p-5">
+            <summary className="cursor-pointer font-semibold">
+              Analisi senza chiamata API (prompt da portare su claude.ai)
+            </summary>
+            <div className="mt-4">
+              <ManualBridge
+                projectId={projectId}
+                moduleId={module.id}
+                moduleName={module.name}
+                focus={focus}
+              />
+            </div>
+          </details>
+        ) : (
+          <div className="panel p-5">
+            <h3 className="font-semibold">Analisi guidata in due passaggi</h3>
+            <div className="mt-3">
+              <ManualBridge
+                projectId={projectId}
+                moduleId={module.id}
+                moduleName={module.name}
+                focus={focus}
+                primary
+              />
+            </div>
+          </div>
+        )
       ) : null}
 
       <div className="panel p-5">

@@ -5,6 +5,7 @@ import { requirePageUser } from "@/lib/auth/session";
 import { getProject } from "@/lib/data/projects";
 import { getAnalysis, listQuestions } from "@/lib/data/analyses";
 import { getModule } from "@/lib/analysis/modules";
+import { apiEnabled, manualEnabled } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,8 @@ export default async function ModulePage({
         analysis={analysis}
         questions={moduleQuestions}
         answeredCount={answeredCount}
+        apiEnabled={apiEnabled()}
+        manualEnabled={manualEnabled()}
       />
 
       <details className="panel p-5">

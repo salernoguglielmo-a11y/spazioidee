@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import ChatPanel from "@/components/ChatPanel";
+import ManualDialogue from "@/components/ManualDialogue";
+import { apiEnabled } from "@/lib/env";
 import { requirePageUser } from "@/lib/auth/session";
 import { getProject } from "@/lib/data/projects";
 import { listMessages } from "@/lib/data/analyses";
@@ -23,7 +25,11 @@ export default async function DialoguePage({ params }: { params: Promise<{ id: s
           nuove. Tutto quello che emerge qui resta nel contesto del progetto.
         </p>
       </div>
-      <ChatPanel projectId={id} initialMessages={messages} />
+      {apiEnabled() ? (
+        <ChatPanel projectId={id} initialMessages={messages} />
+      ) : (
+        <ManualDialogue projectId={id} />
+      )}
     </div>
   );
 }

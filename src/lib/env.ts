@@ -30,6 +30,12 @@ export const env = {
   projectVisibility: (process.env.PROJECT_VISIBILITY ?? "shared") as "shared" | "private",
 
   // Claude
+  /**
+   * "api"      → analisi automatica tramite chiave API
+   * "manuale"  → nessuna API: l'app prepara il prompt, tu lo porti su claude.ai
+   * "auto"     → api se la chiave c'è, manuale altrimenti (default)
+   */
+  aiMode: (process.env.AI_MODE ?? "auto") as "api" | "manuale" | "auto",
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
   model: process.env.ANTHROPIC_MODEL ?? "claude-opus-5",
   effort: (process.env.ANTHROPIC_EFFORT ?? "high") as "low" | "medium" | "high" | "xhigh" | "max",
@@ -49,10 +55,21 @@ export const env = {
   smtpUrl: process.env.SMTP_URL ?? "",
 };
 
+/** L'analisi automatica è disponibile solo con chiave API e modalità compatibile. */
+export function apiEnabled(): boolean {
+  if (env.aiMode === "manuale") return false;
+  return Boolean(env.anthropicApiKey);
+}
+
+/** La modalità manuale è sempre disponibile: è il ripiego senza costi. */
+export function manualEnabled(): boolean {
+  return env.aiMode !== "api" || !env.anthropicApiKey;
+}
+
 export function missingConfig(): string[] {
   const missing: string[] = [];
   if (!env.authSecret) missing.push("AUTH_SECRET");
-  if (!env.anthropicApiKey) missing.push("ANTHROPIC_API_KEY");
+  if (env.aiMode === "api" && !env.anthropicApiKey) missing.push("ANTHROPIC_API_KEY");
   if (env.allowedEmails.length === 0 && env.adminEmails.length === 0) missing.push("ALLOWED_EMAILS");
   if (!env.resendApiKey && !env.smtpUrl) missing.push("RESEND_API_KEY oppure SMTP_URL");
   return missing;
