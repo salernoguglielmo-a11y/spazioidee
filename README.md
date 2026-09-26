@@ -220,6 +220,8 @@ Dettagli tecnici che contano:
   la pagina di stato somma il consumo complessivo. Nessuna sorpresa a fine mese.
 - **Confronto fra progetti** (`/confronto`): matrice progetti × moduli, ordinata per indice di
   solidità, con i moduli più deboli del portafoglio e il totale delle domande aperte.
+- **Backup scaricabile** (`/api/backup`, amministratori): un JSON con progetti, testo dei documenti,
+  analisi, domande, dialogo e note. I contenuti restano tuoi e portabili.
 
 ---
 

@@ -63,6 +63,19 @@ export default async function StatusPage() {
         ))}
       </div>
 
+      <div className="panel flex flex-wrap items-center justify-between gap-3 p-5">
+        <div>
+          <p className="font-semibold">Copia di sicurezza</p>
+          <p className="muted mt-1 text-sm">
+            Un file JSON con progetti, testo dei documenti, analisi, domande, dialogo e note: i tuoi
+            contenuti restano tuoi e portabili. Esclude i binari dei PDF e i token di accesso.
+          </p>
+        </div>
+        <a className="btn" href="/api/backup">
+          Scarica backup
+        </a>
+      </div>
+
       <p className="muted text-xs">
         Dopo ogni modifica alle variabili d&apos;ambiente serve un nuovo deploy perché abbia effetto.
       </p>
