@@ -26,7 +26,7 @@ export async function DELETE(request: Request, ctx: { params: Promise<{ id: stri
     const { id } = await ctx.params;
     await requireProject(id);
     const insightId = new URL(request.url).searchParams.get("insightId");
-    if (insightId) await deleteInsight(insightId);
+    if (insightId) await deleteInsight(id, insightId);
     return NextResponse.json({ insights: await listInsights(id) });
   } catch (error) {
     if (error instanceof NotFoundError) return notFoundResponse();

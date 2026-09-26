@@ -185,20 +185,32 @@ export async function replaceModuleQuestions(
   }
 }
 
+/** Sempre vincolate al progetto autorizzato: un id da solo non basta. */
 export async function answerQuestion(
+  projectId: string,
   id: string,
   answer: string,
   user: string,
 ): Promise<Question | null> {
   await run(
-    "UPDATE questions SET answer = ?, status = 'risposta', answered_by = ?, answered_at = ? WHERE id = ?",
-    [answer, user, nowIso(), id],
+    `UPDATE questions SET answer = ?, status = 'risposta', answered_by = ?, answered_at = ?
+     WHERE id = ? AND project_id = ?`,
+    [answer, user, nowIso(), id, projectId],
   );
-  return queryOne<Question>("SELECT * FROM questions WHERE id = ?", [id]);
+  return queryOne<Question>("SELECT * FROM questions WHERE id = ? AND project_id = ?", [
+    id,
+    projectId,
+  ]);
 }
 
-export async function dismissQuestion(id: string): Promise<void> {
+export async function dismissQuestion(projectId: string, id: string): Promise<boolean> {
+  const question = await queryOne<{ id: string }>(
+    "SELECT id FROM questions WHERE id = ? AND project_id = ?",
+    [id, projectId],
+  );
+  if (!question) return false;
   await run("UPDATE questions SET status = 'archiviata' WHERE id = ?", [id]);
+  return true;
 }
 
 // ---------------------------------------------------------------- dialogo
@@ -248,6 +260,6 @@ export async function addInsight(
   );
 }
 
-export async function deleteInsight(id: string): Promise<void> {
-  await run("DELETE FROM insights WHERE id = ?", [id]);
+export async function deleteInsight(projectId: string, id: string): Promise<void> {
+  await run("DELETE FROM insights WHERE id = ? AND project_id = ?", [id, projectId]);
 }

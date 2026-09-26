@@ -16,7 +16,8 @@ export async function POST(
     const body = await request.json();
 
     if (body.action === "archivia") {
-      await dismissQuestion(questionId);
+      const done = await dismissQuestion(id, questionId);
+      if (!done) return notFoundResponse();
       return NextResponse.json({ ok: true });
     }
 
@@ -24,7 +25,8 @@ export async function POST(
     if (!answer) {
       return NextResponse.json({ error: "La risposta non può essere vuota." }, { status: 400 });
     }
-    const question = await answerQuestion(questionId, answer, user.email);
+    const question = await answerQuestion(id, questionId, answer, user.email);
+    if (!question) return notFoundResponse();
     await touchProject(id);
     await audit(user.email, "question.answer", `${id}/${questionId}`, null);
     return NextResponse.json({ ok: true, question });
