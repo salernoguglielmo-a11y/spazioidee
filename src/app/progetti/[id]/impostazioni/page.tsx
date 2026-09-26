@@ -23,6 +23,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ id: s
       <ProjectSettingsForm project={project} />
       <p className="muted text-xs">
         Creato da {project.owner_email} il {new Date(project.created_at).toLocaleDateString("it-IT")}.
+        Archiviare un progetto lo toglie dall&apos;elenco e dal confronto senza cancellare nulla:
+        resta visibile attivando «Mostra archiviati».
       </p>
     </div>
   );

@@ -28,6 +28,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <Link href="/" className="muted hover:underline">
                   Progetti
                 </Link>
+                <Link href="/confronto" className="muted hover:underline">
+                  Confronto
+                </Link>
                 {user.role === "admin" ? (
                   <Link href="/admin" className="muted hover:underline">
                     Accessi

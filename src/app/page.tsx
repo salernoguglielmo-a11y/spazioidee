@@ -9,9 +9,14 @@ import { apiEnabled, missingConfig } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ archiviati?: string }>;
+}) {
   const user = await requirePageUser();
-  const projects = await listProjects(user);
+  const showArchived = (await searchParams).archiviati === "1";
+  const projects = await listProjects(user, showArchived);
 
   const cards = await Promise.all(
     projects.map(async (project) => {
@@ -40,9 +45,19 @@ export default async function DashboardPage() {
             discutine e valida tu le conclusioni.
           </p>
         </div>
-        <Link href="/progetti/nuovo" className="btn btn-primary">
-          + Nuovo progetto
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {projects.length > 1 ? (
+            <Link href="/confronto" className="btn">
+              Confronta le idee
+            </Link>
+          ) : null}
+          <Link href={showArchived ? "/" : "/?archiviati=1"} className="btn">
+            {showArchived ? "Nascondi archiviati" : "Mostra archiviati"}
+          </Link>
+          <Link href="/progetti/nuovo" className="btn btn-primary">
+            + Nuovo progetto
+          </Link>
+        </div>
       </div>
 
       {!apiEnabled() ? (
@@ -92,6 +107,11 @@ export default async function DashboardPage() {
                     <p className="muted mt-0.5 line-clamp-2 text-sm">{project.one_liner}</p>
                   ) : null}
                   <div className="mt-3 flex flex-wrap gap-2">
+                    {project.archived ? (
+                      <span className="badge" style={{ color: "var(--muted)" }}>
+                        archiviato
+                      </span>
+                    ) : null}
                     {project.stage ? <span className="badge">{project.stage}</span> : null}
                     {project.sector ? <span className="badge">{project.sector}</span> : null}
                     <span className="badge">{documents} documenti</span>

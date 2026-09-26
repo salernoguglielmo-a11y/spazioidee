@@ -44,6 +44,23 @@ export default function ProjectSettingsForm({ project }: { project: Project }) {
     router.refresh();
   }
 
+  async function toggleArchive() {
+    setSaving(true);
+    setError(null);
+    const res = await fetch(`/api/projects/${project.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archived: !project.archived }),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Operazione non riuscita.");
+      return;
+    }
+    router.refresh();
+  }
+
   async function remove() {
     if (!confirm(`Eliminare "${project.name}" con documenti, analisi e dialogo? L'operazione è definitiva.`)) return;
     const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
@@ -181,6 +198,9 @@ export default function ProjectSettingsForm({ project }: { project: Project }) {
           {saving ? "Salvataggio…" : "Salva modifiche"}
         </button>
         {saved ? <span className="muted text-sm">Salvato.</span> : null}
+        <button className="btn" onClick={toggleArchive} disabled={saving}>
+          {project.archived ? "Ripristina progetto" : "Archivia progetto"}
+        </button>
         <button className="btn" style={{ color: "var(--bad)" }} onClick={remove}>
           Elimina progetto
         </button>
