@@ -3,6 +3,7 @@ import { access, constants, mkdir, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { db, queryOne } from "./db";
 import { apiEnabled, env, manualEnabled } from "./env";
+import { estimateCost, formatCost, formatTokens } from "./analysis/cost";
 
 export type Check = {
   name: string;
@@ -89,6 +90,38 @@ export async function runDiagnostics(): Promise<Check[]> {
         ? undefined
         : "Per l'analisi automatica aggiungi ANTHROPIC_API_KEY e rilancia il deploy.",
   });
+
+  // Consumo API accumulato
+  if (apiEnabled()) {
+    const totals = await queryOne<{
+      input_tokens: number;
+      output_tokens: number;
+      cache_tokens: number;
+      runs: number;
+    }>(
+      `SELECT COALESCE(SUM(input_tokens),0) as input_tokens,
+              COALESCE(SUM(output_tokens),0) as output_tokens,
+              COALESCE(SUM(cache_tokens),0) as cache_tokens,
+              COALESCE(SUM(run_count),0) as runs
+       FROM analyses`,
+    ).catch(() => null);
+
+    if (totals) {
+      const cost = estimateCost(totals);
+      checks.push({
+        name: "Consumo API stimato",
+        state: "ok",
+        detail: `${formatCost(cost)} su ${totals.runs} ${
+          totals.runs === 1 ? "esecuzione" : "esecuzioni"
+        } · ${formatTokens(
+          totals.input_tokens,
+        )} token in ingresso, ${formatTokens(totals.output_tokens)} in uscita, ${formatTokens(
+          totals.cache_tokens,
+        )} letti da cache`,
+        hint: "Stima ai prezzi di listino configurati: il dato ufficiale resta quello della console Anthropic.",
+      });
+    }
+  }
 
   // Email
   const channel = env.resendApiKey ? "Resend" : env.smtpUrl ? "SMTP" : null;

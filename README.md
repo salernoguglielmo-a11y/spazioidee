@@ -72,6 +72,9 @@ disponibile come alternativa quando la chiave c'è.
 | 🌱 Impatto & Sostenibilità | Teoria del cambiamento, KPI di impatto (disattivato di default) |
 | 🏁 Investment Readiness | Memo per investitori, due diligence, prossimi 90 giorni |
 
+Quando i progetti sono più di uno, `/confronto` mette a confronto gli stessi moduli su idee
+diverse: serve a decidere su quale vale la pena investire tempo.
+
 Ogni progetto attiva solo i moduli che gli servono.
 
 ---
@@ -213,6 +216,10 @@ Dettagli tecnici che contano:
 - **Pagina di stato** (`/stato`, per amministratori): verifica database, sessioni, indirizzo
   pubblico, modalità di analisi, invio email, archiviazione e allowlist, con l'indicazione di cosa
   sistemare.
+- **Consumo visibile**: ogni modulo mostra i token usati e il costo stimato della propria analisi, e
+  la pagina di stato somma il consumo complessivo. Nessuna sorpresa a fine mese.
+- **Confronto fra progetti** (`/confronto`): matrice progetti × moduli, ordinata per indice di
+  solidità, con i moduli più deboli del portafoglio e il totale delle domande aperte.
 
 ---
 

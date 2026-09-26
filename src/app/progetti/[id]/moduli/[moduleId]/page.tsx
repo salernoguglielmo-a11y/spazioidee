@@ -6,6 +6,7 @@ import { getProject } from "@/lib/data/projects";
 import { getAnalysis, listQuestions } from "@/lib/data/analyses";
 import { getModule } from "@/lib/analysis/modules";
 import { apiEnabled, manualEnabled } from "@/lib/env";
+import { estimateCost } from "@/lib/analysis/cost";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export default async function ModulePage({
         answeredCount={answeredCount}
         apiEnabled={apiEnabled()}
         manualEnabled={manualEnabled()}
+        cost={analysis ? estimateCost(analysis) : 0}
       />
 
       <details className="panel p-5">

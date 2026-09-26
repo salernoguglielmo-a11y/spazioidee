@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS analyses (
   actions        TEXT NOT NULL DEFAULT '[]',
   sources        TEXT NOT NULL DEFAULT '[]',
   model          TEXT,
+  input_tokens   INTEGER NOT NULL DEFAULT 0,
+  output_tokens  INTEGER NOT NULL DEFAULT 0,
+  cache_tokens   INTEGER NOT NULL DEFAULT 0,
   run_count      INTEGER NOT NULL DEFAULT 0,
   validated_by   TEXT,
   validated_at   TEXT,
@@ -148,6 +151,9 @@ function rawClient(): Client {
 /** Colonne aggiunte dopo la prima release: applicate solo se mancanti. */
 const ADDED_COLUMNS: { table: string; column: string; definition: string }[] = [
   { table: "documents", column: "raw_b64", definition: "TEXT" },
+  { table: "analyses", column: "input_tokens", definition: "INTEGER NOT NULL DEFAULT 0" },
+  { table: "analyses", column: "output_tokens", definition: "INTEGER NOT NULL DEFAULT 0" },
+  { table: "analyses", column: "cache_tokens", definition: "INTEGER NOT NULL DEFAULT 0" },
 ];
 
 async function migrate(): Promise<void> {

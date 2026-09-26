@@ -40,6 +40,11 @@ export const env = {
   model: process.env.ANTHROPIC_MODEL ?? "claude-opus-5",
   effort: (process.env.ANTHROPIC_EFFORT ?? "high") as "low" | "medium" | "high" | "xhigh" | "max",
   enableWebSearch: (process.env.ENABLE_WEB_SEARCH ?? "true") !== "false",
+  // Prezzi per milione di token, usati solo per stimare il consumo mostrato in
+  // interfaccia. Valori di listino di Claude Opus 5 (dollari).
+  priceInput: Number(process.env.PRICE_INPUT_PER_MTOK ?? 5),
+  priceOutput: Number(process.env.PRICE_OUTPUT_PER_MTOK ?? 25),
+  priceCacheRead: Number(process.env.PRICE_CACHE_READ_PER_MTOK ?? 0.5),
   webSearchMaxUses: Number(process.env.WEB_SEARCH_MAX_USES ?? 8),
 
   // Documenti

@@ -7,6 +7,7 @@ import ManualBridge from "./ManualBridge";
 import QuestionsPanel from "./QuestionsPanel";
 import { ScoreBadge, StatusBadge } from "./Score";
 import { consumeStream } from "@/lib/client/stream";
+import { formatCost, formatTokens } from "@/lib/analysis/cost";
 import type { Analysis, Question } from "@/lib/data/types";
 
 type ModuleInfo = {
@@ -28,6 +29,8 @@ type Props = {
   apiEnabled: boolean;
   /** Ponte manuale verso claude.ai disponibile. */
   manualEnabled: boolean;
+  /** Stima in dollari del consumo API accumulato su questo modulo. */
+  cost: number;
 };
 
 export default function ModuleWorkbench({
@@ -38,6 +41,7 @@ export default function ModuleWorkbench({
   answeredCount,
   apiEnabled,
   manualEnabled,
+  cost,
 }: Props) {
   const router = useRouter();
   const [running, setRunning] = useState(false);
@@ -165,6 +169,15 @@ export default function ModuleWorkbench({
               Esecuzioni: {analysis.run_count} · Ultimo aggiornamento:{" "}
               {new Date(analysis.updated_at).toLocaleString("it-IT")}
               {analysis.validated_by ? ` · Validata da ${analysis.validated_by}` : ""}
+              {analysis.input_tokens + analysis.output_tokens > 0
+                ? ` · Consumo stimato ${formatCost(cost)} (${formatTokens(
+                    analysis.input_tokens,
+                  )} in ingresso, ${formatTokens(analysis.output_tokens)} in uscita${
+                    analysis.cache_tokens > 0
+                      ? `, ${formatTokens(analysis.cache_tokens)} da cache`
+                      : ""
+                  })`
+                : ""}
             </p>
           ) : null}
         </div>

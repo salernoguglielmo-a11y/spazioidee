@@ -49,6 +49,9 @@ export type Analysis = {
   actions: string[];
   sources: { title: string; url: string }[];
   model: string | null;
+  input_tokens: number;
+  output_tokens: number;
+  cache_tokens: number;
   run_count: number;
   validated_by: string | null;
   validated_at: string | null;

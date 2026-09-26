@@ -144,7 +144,8 @@ export type StructuredSummary = {
 export async function extractSummary(
   moduleName: string,
   analysisMarkdown: string,
-): Promise<StructuredSummary | null> {
+): Promise<{ summary: StructuredSummary | null; usage: StreamResult["usage"] }> {
+  const empty = { input: 0, output: 0, cacheRead: 0 };
   const client = claude();
   try {
     const response = await client.messages.create({
@@ -161,14 +162,20 @@ export async function extractSummary(
       ],
     });
 
+    const usage = {
+      input: response.usage.input_tokens ?? 0,
+      output: response.usage.output_tokens ?? 0,
+      cacheRead: response.usage.cache_read_input_tokens ?? 0,
+    };
+
     for (const block of response.content) {
       if (block.type === "tool_use" && block.name === EXTRACTION_TOOL_NAME) {
-        return block.input as StructuredSummary;
+        return { summary: block.input as StructuredSummary, usage };
       }
     }
-    return null;
+    return { summary: null, usage };
   } catch (error) {
     console.error("Estrazione sintesi non riuscita:", error);
-    return null;
+    return { summary: null, usage: empty };
   }
 }

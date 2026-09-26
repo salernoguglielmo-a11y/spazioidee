@@ -43,6 +43,7 @@ export type AnalysisUpsert = {
   actions?: string[];
   sources?: { title: string; url: string }[];
   model?: string | null;
+  usage?: { input: number; output: number; cacheRead: number };
 };
 
 /** Salva l'esito di un'esecuzione AI mantenendo eventuale versione umana. */
@@ -56,7 +57,9 @@ export async function saveAiAnalysis(
   if (existing) {
     await run(
       `UPDATE analyses SET ai_markdown = ?, summary = ?, score = ?, confidence = ?, strengths = ?,
-        risks = ?, actions = ?, sources = ?, model = ?, run_count = run_count + 1,
+        risks = ?, actions = ?, sources = ?, model = ?,
+        input_tokens = input_tokens + ?, output_tokens = output_tokens + ?, cache_tokens = cache_tokens + ?,
+        run_count = run_count + 1,
         status = CASE WHEN status = 'validata' THEN 'in_revisione' ELSE status END,
         updated_at = ? WHERE id = ?`,
       [
@@ -69,6 +72,9 @@ export async function saveAiAnalysis(
         JSON.stringify(data.actions ?? []),
         JSON.stringify(data.sources ?? []),
         data.model ?? null,
+        data.usage?.input ?? 0,
+        data.usage?.output ?? 0,
+        data.usage?.cacheRead ?? 0,
         now,
         existing.id,
       ],
@@ -77,8 +83,8 @@ export async function saveAiAnalysis(
     await run(
       `INSERT INTO analyses
         (id, project_id, module_id, status, ai_markdown, summary, score, confidence, strengths, risks,
-         actions, sources, model, run_count, created_at, updated_at)
-       VALUES (?, ?, ?, 'ai', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+         actions, sources, model, input_tokens, output_tokens, cache_tokens, run_count, created_at, updated_at)
+       VALUES (?, ?, ?, 'ai', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
       [
         newId("ana"),
         projectId,
@@ -92,6 +98,9 @@ export async function saveAiAnalysis(
         JSON.stringify(data.actions ?? []),
         JSON.stringify(data.sources ?? []),
         data.model ?? null,
+        data.usage?.input ?? 0,
+        data.usage?.output ?? 0,
+        data.usage?.cacheRead ?? 0,
         now,
         now,
       ],

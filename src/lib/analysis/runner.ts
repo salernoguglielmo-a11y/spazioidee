@@ -64,8 +64,14 @@ export async function runModule(
     return;
   }
 
-  const structured = await extractSummary(module.name, result.text);
+  const extraction = await extractSummary(module.name, result.text);
+  const structured = extraction.summary;
   const sources: Source[] = dedupeSources([...(structured?.sources ?? []), ...result.sources]);
+  const usage = {
+    input: result.usage.input + extraction.usage.input,
+    output: result.usage.output + extraction.usage.output,
+    cacheRead: result.usage.cacheRead + extraction.usage.cacheRead,
+  };
 
   await saveAiAnalysis(project.id, module.id, {
     ai_markdown: result.text,
@@ -77,6 +83,7 @@ export async function runModule(
     actions: structured?.actions ?? [],
     sources,
     model: process.env.ANTHROPIC_MODEL ?? "claude-opus-5",
+    usage,
   });
 
   const questions = structured?.questions ?? [];
