@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Build autoconsistente per il deploy con Docker o su una VPS.
-  output: "standalone",
+  // Build autoconsistente per Docker e VPS. Su Vercel non serve: la
+  // piattaforma costruisce a modo suo, e imporlo può solo dare fastidio.
+  output: process.env.VERCEL ? undefined : "standalone",
   serverExternalPackages: ["@libsql/client", "unpdf", "mammoth", "xlsx", "nodemailer"],
   experimental: {
     serverActions: { bodySizeLimit: "30mb" },
