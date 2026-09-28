@@ -118,8 +118,14 @@ indirizzo presente in allowlist. Nessuna password da gestire o da farsi rubare.
   già aperte.
 - Chi richiede l'accesso da un indirizzo non autorizzato riceve sempre la stessa risposta neutra:
   l'applicazione non rivela chi è in elenco.
-- `PROJECT_VISIBILITY` decide se i progetti sono condivisi fra tutti gli autorizzati (`shared`,
-  default) o visibili solo a chi li crea (`private`).
+- `PROJECT_VISIBILITY` decide come sono separati i progetti fra le persone autorizzate:
+  - `membri` (default): tutti vedono l'**elenco** dei progetti — nome, settore, fase e chi li segue —
+    ma documenti, analisi, dialogo, punteggi e dossier restano ai soli membri. Chi ha creato il
+    progetto decide chi aggiungere, dalle impostazioni del progetto.
+  - `shared`: ogni persona autorizzata vede tutto.
+  - `private`: chi non è membro non vede nemmeno il nome.
+  - Gli amministratori dello spazio vedono comunque tutti i progetti: possono già scaricare il
+    backup completo, quindi fingere il contrario sarebbe una falsa sicurezza.
 
 Ogni accesso, ogni analisi e ogni modifica all'allowlist finiscono nel registro attività in `/admin`.
 

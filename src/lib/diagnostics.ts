@@ -91,6 +91,23 @@ export async function runDiagnostics(): Promise<Check[]> {
         : "Per l'analisi automatica aggiungi ANTHROPIC_API_KEY e rilancia il deploy.",
   });
 
+  // Separazione dei progetti
+  const modo = env.projectVisibility;
+  checks.push({
+    name: "Separazione dei progetti",
+    state: "ok",
+    detail:
+      modo === "membri"
+        ? "Elenco visibile a tutti gli autorizzati, dettagli ai soli membri del progetto"
+        : modo === "private"
+          ? "Ogni persona vede soltanto i progetti di cui fa parte"
+          : "Modalità condivisa: ogni persona autorizzata vede tutti i progetti per intero",
+    hint:
+      modo === "shared"
+        ? "Per separare i progetti fra più persone imposta PROJECT_VISIBILITY su «membri»."
+        : "Gli amministratori dello spazio vedono comunque tutti i progetti.",
+  });
+
   // Consumo API accumulato
   if (apiEnabled()) {
     const totals = await queryOne<{

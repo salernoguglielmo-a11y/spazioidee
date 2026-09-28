@@ -2,6 +2,7 @@ import { newId, nowIso, parseJson, queryAll, queryOne, run } from "../db";
 import { env } from "../env";
 import type { SessionUser } from "../auth/session";
 import { defaultModuleIds } from "../analysis/modules";
+import { memberProjectIds } from "./members";
 import type { Project } from "./types";
 
 type ProjectRow = Omit<Project, "modules" | "archived"> & {
@@ -17,29 +18,73 @@ function toProject(row: ProjectRow): Project {
   };
 }
 
-function visibilityClause(user: SessionUser): { sql: string; args: unknown[] } {
-  if (env.projectVisibility === "shared" || user.role === "admin") {
-    return { sql: "", args: [] };
-  }
-  return { sql: " AND owner_email = ?", args: [user.email] };
+/**
+ * Chi può entrare nel merito di un progetto: chi lo ha creato, chi è stato
+ * aggiunto come membro, e gli amministratori dello spazio. In modalità
+ * "shared" la separazione non si applica.
+ */
+export function canAccess(
+  user: SessionUser,
+  project: Project,
+  memberIds: Set<string>,
+): boolean {
+  if (env.projectVisibility === "shared") return true;
+  if (user.role === "admin") return true;
+  if (project.owner_email === user.email) return true;
+  return memberIds.has(project.id);
 }
 
-export async function listProjects(user: SessionUser, includeArchived = false): Promise<Project[]> {
-  const vis = visibilityClause(user);
+export type ProjectListItem = { project: Project; access: boolean };
+
+/**
+ * Elenco dei progetti. Di quelli non accessibili restano nome, settore, fase e
+ * proprietario: il contenuto dell'idea (descrizione e obiettivo) non esce.
+ */
+export async function listProjects(
+  user: SessionUser,
+  includeArchived = false,
+): Promise<ProjectListItem[]> {
   const rows = await queryAll<ProjectRow>(
-    `SELECT * FROM projects WHERE (archived = 0 OR ?)${vis.sql} ORDER BY updated_at DESC`,
-    [includeArchived ? 1 : 0, ...vis.args],
+    "SELECT * FROM projects WHERE (archived = 0 OR ?) ORDER BY updated_at DESC",
+    [includeArchived ? 1 : 0],
   );
-  return rows.map(toProject);
+  const memberIds = await memberProjectIds(user.email);
+
+  const items: ProjectListItem[] = [];
+  for (const row of rows) {
+    const project = toProject(row);
+    const access = canAccess(user, project, memberIds);
+    if (!access && env.projectVisibility === "private") continue;
+    items.push({
+      project: access ? project : { ...project, one_liner: null, goal: null },
+      access,
+    });
+  }
+  return items;
 }
 
+/** Progetto completo, solo se la persona può accedervi. */
 export async function getProject(id: string, user: SessionUser): Promise<Project | null> {
-  const vis = visibilityClause(user);
-  const row = await queryOne<ProjectRow>(`SELECT * FROM projects WHERE id = ?${vis.sql}`, [
-    id,
-    ...vis.args,
-  ]);
-  return row ? toProject(row) : null;
+  const row = await queryOne<ProjectRow>("SELECT * FROM projects WHERE id = ?", [id]);
+  if (!row) return null;
+  const project = toProject(row);
+  const memberIds = await memberProjectIds(user.email);
+  return canAccess(user, project, memberIds) ? project : null;
+}
+
+/** Solo i dati già visibili nell'elenco: serve alla pagina "non hai accesso". */
+export async function getProjectCard(
+  id: string,
+  user: SessionUser,
+): Promise<{ name: string; owner_email: string; sector: string | null; stage: string | null } | null> {
+  if (env.projectVisibility === "private") return null;
+  const row = await queryOne<ProjectRow>(
+    "SELECT name, owner_email, sector, stage FROM projects WHERE id = ?",
+    [id],
+  );
+  return row
+    ? { name: row.name, owner_email: row.owner_email, sector: row.sector, stage: row.stage }
+    : null;
 }
 
 export type ProjectInput = {

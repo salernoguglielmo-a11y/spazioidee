@@ -19,7 +19,8 @@ function cellColor(score: number | null): { background: string; color: string } 
 
 export default async function ComparePage() {
   const user = await requirePageUser();
-  const projects = await listProjects(user);
+  // Il confronto mostra punteggi: è materiale riservato ai membri.
+  const projects = (await listProjects(user)).filter((i) => i.access).map((i) => i.project);
 
   const rows = await Promise.all(
     projects.map(async (project) => {
@@ -69,6 +70,9 @@ export default async function ComparePage() {
     return (
       <div className="panel p-10 text-center">
         <p className="text-lg font-semibold">Nessun progetto da confrontare</p>
+        <p className="muted mx-auto mt-2 max-w-md text-sm">
+          Il confronto considera solo i progetti di cui fai parte.
+        </p>
         <Link href="/progetti/nuovo" className="btn btn-primary mt-4">
           Crea il primo progetto
         </Link>

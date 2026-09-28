@@ -57,6 +57,15 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 CREATE INDEX IF NOT EXISTS idx_projects_owner ON projects(owner_email);
 
+CREATE TABLE IF NOT EXISTS project_members (
+  project_id  TEXT NOT NULL,
+  email       TEXT NOT NULL,
+  added_by    TEXT,
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (project_id, email)
+);
+CREATE INDEX IF NOT EXISTS idx_members_email ON project_members(email);
+
 CREATE TABLE IF NOT EXISTS documents (
   id           TEXT PRIMARY KEY,
   project_id   TEXT NOT NULL,

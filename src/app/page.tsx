@@ -19,7 +19,9 @@ export default async function DashboardPage({
   const projects = await listProjects(user, showArchived);
 
   const cards = await Promise.all(
-    projects.map(async (project) => {
+    projects.map(async ({ project, access }) => {
+      // Di un progetto altrui non si interrogano nemmeno i contenuti.
+      if (!access) return { project, access, readiness: null, documents: 0 };
       const [analyses, questions, documents] = await Promise.all([
         listAnalyses(project.id),
         listQuestions(project.id),
@@ -27,6 +29,7 @@ export default async function DashboardPage({
       ]);
       return {
         project,
+        access,
         readiness: computeReadiness(project.modules, analyses, questions),
         documents: documents.length,
       };
@@ -97,37 +100,69 @@ export default async function DashboardPage({
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {cards.map(({ project, readiness, documents }) => (
-            <Link key={project.id} href={`/progetti/${project.id}`} className="panel block p-5 transition hover:opacity-90">
-              <div className="flex items-start gap-4">
-                <ScoreBadge score={readiness.score} />
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-lg font-semibold">{project.name}</h2>
-                  {project.one_liner ? (
-                    <p className="muted mt-0.5 line-clamp-2 text-sm">{project.one_liner}</p>
-                  ) : null}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {project.archived ? (
-                      <span className="badge" style={{ color: "var(--muted)" }}>
-                        archiviato
-                      </span>
+          {cards.map(({ project, access, readiness, documents }) =>
+            access && readiness ? (
+              <Link
+                key={project.id}
+                href={`/progetti/${project.id}`}
+                className="panel block p-5 transition hover:opacity-90"
+              >
+                <div className="flex items-start gap-4">
+                  <ScoreBadge score={readiness.score} />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-lg font-semibold">{project.name}</h2>
+                    {project.one_liner ? (
+                      <p className="muted mt-0.5 line-clamp-2 text-sm">{project.one_liner}</p>
                     ) : null}
-                    {project.stage ? <span className="badge">{project.stage}</span> : null}
-                    {project.sector ? <span className="badge">{project.sector}</span> : null}
-                    <span className="badge">{documents} documenti</span>
-                    <span className="badge">
-                      {readiness.analyzed}/{readiness.total} moduli
-                    </span>
-                    {readiness.openQuestions > 0 ? (
-                      <span className="badge" style={{ color: "var(--warn)", borderColor: "var(--warn)" }}>
-                        {readiness.openQuestions} domande aperte
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {project.archived ? (
+                        <span className="badge" style={{ color: "var(--muted)" }}>
+                          archiviato
+                        </span>
+                      ) : null}
+                      {project.stage ? <span className="badge">{project.stage}</span> : null}
+                      {project.sector ? <span className="badge">{project.sector}</span> : null}
+                      <span className="badge">{documents} documenti</span>
+                      <span className="badge">
+                        {readiness.analyzed}/{readiness.total} moduli
                       </span>
-                    ) : null}
+                      {readiness.openQuestions > 0 ? (
+                        <span
+                          className="badge"
+                          style={{ color: "var(--warn)", borderColor: "var(--warn)" }}
+                        >
+                          {readiness.openQuestions} domande aperte
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div key={project.id} className="panel p-5" style={{ opacity: 0.75 }}>
+                <div className="flex items-start gap-4">
+                  <div
+                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl"
+                    style={{ border: "2px dashed var(--border)", color: "var(--muted)" }}
+                    aria-hidden
+                  >
+                    🔒
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-lg font-semibold">{project.name}</h2>
+                    <p className="muted mt-0.5 text-sm">
+                      Progetto di {project.owner_email}. Non fai parte dei suoi membri: chiedi a chi
+                      lo segue di aggiungerti.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {project.stage ? <span className="badge">{project.stage}</span> : null}
+                      {project.sector ? <span className="badge">{project.sector}</span> : null}
+                    </div>
                   </div>
                 </div>
               </div>
-            </Link>
-          ))}
+            ),
+          )}
         </div>
       )}
     </div>

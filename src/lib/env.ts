@@ -26,8 +26,16 @@ export const env = {
   // Controllo accessi
   allowedEmails: list(process.env.ALLOWED_EMAILS),
   adminEmails: list(process.env.ADMIN_EMAILS),
-  /** "shared": i progetti sono visibili a tutti gli autorizzati. "private": solo a chi li crea (e agli admin). */
-  projectVisibility: (process.env.PROJECT_VISIBILITY ?? "shared") as "shared" | "private",
+  /**
+   * Come sono separati i progetti fra le persone autorizzate:
+   *   "membri"  → tutti vedono l'elenco, i dettagli solo chi è membro (default)
+   *   "shared"  → tutti vedono tutto
+   *   "private" → chi non è membro non vede nemmeno il nome
+   */
+  projectVisibility: (process.env.PROJECT_VISIBILITY ?? "membri") as
+    | "membri"
+    | "shared"
+    | "private",
 
   // Claude
   /**
