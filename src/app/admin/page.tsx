@@ -1,7 +1,9 @@
 import Link from "next/link";
 import AllowlistManager from "@/components/AllowlistManager";
+import InviteManager from "@/components/InviteManager";
 import { requirePageUser } from "@/lib/auth/session";
 import { listAllowlist } from "@/lib/auth/allowlist";
+import { listInvites } from "@/lib/auth/invites";
 import { env, missingConfig } from "@/lib/env";
 import { queryAll } from "@/lib/db";
 
@@ -21,6 +23,7 @@ export default async function AdminPage() {
     );
   }
   const entries = await listAllowlist();
+  const invites = await listInvites();
   const envManaged = [...env.allowedEmails, ...env.adminEmails];
   const missing = missingConfig();
 
@@ -58,6 +61,8 @@ export default async function AdminPage() {
       ) : null}
 
       <AllowlistManager initialEntries={entries} envManaged={envManaged} currentEmail={admin.email} />
+
+      <InviteManager initialInvites={invites} allowlist={entries} />
 
       <div className="panel p-5">
         <h2 className="font-semibold">Attività recente</h2>

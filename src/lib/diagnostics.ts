@@ -137,13 +137,25 @@ export async function runDiagnostics(): Promise<Check[]> {
             detail: "Nessun provider configurato: in locale il link viene mostrato a schermo",
             hint: "Prima di pubblicare imposta SMTP_URL o RESEND_API_KEY.",
           }
-        : {
-            name: "Invio email",
-            state: "errore",
-            detail: "Nessun provider configurato: nessuno può ricevere il link di accesso",
-            hint:
-              "Su un server pubblico il link non viene mai mostrato a schermo, per sicurezza. Imposta SMTP_URL o RESEND_API_KEY.",
-          },
+        : await (async () => {
+            const invites = await queryOne<{ n: number }>(
+              "SELECT COUNT(*) as n FROM invites WHERE revoked = 0",
+            ).catch(() => null);
+            const attivi = invites?.n ?? 0;
+            return attivi > 0
+              ? {
+                  name: "Invio email",
+                  state: "attenzione" as const,
+                  detail: `Nessun provider configurato: si entra con i ${attivi} link di accesso diretto attivi`,
+                  hint: "Con SMTP_URL o RESEND_API_KEY torna disponibile anche il link via email.",
+                }
+              : {
+                  name: "Invio email",
+                  state: "errore" as const,
+                  detail: "Nessun provider e nessun link di accesso: nessuno può entrare",
+                  hint: "Genera un link di accesso diretto da /admin, oppure imposta SMTP_URL o RESEND_API_KEY.",
+                };
+          })(),
   );
 
   // Disco

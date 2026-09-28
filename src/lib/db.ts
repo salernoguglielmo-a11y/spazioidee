@@ -27,6 +27,19 @@ CREATE TABLE IF NOT EXISTS login_tokens (
 );
 CREATE INDEX IF NOT EXISTS idx_login_tokens_email ON login_tokens(email);
 
+CREATE TABLE IF NOT EXISTS invites (
+  id          TEXT PRIMARY KEY,
+  email       TEXT NOT NULL,
+  token_hash  TEXT NOT NULL,
+  label       TEXT,
+  created_by  TEXT,
+  created_at  TEXT NOT NULL,
+  last_used   TEXT,
+  uses        INTEGER NOT NULL DEFAULT 0,
+  revoked     INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_invites_email ON invites(email);
+
 CREATE TABLE IF NOT EXISTS projects (
   id             TEXT PRIMARY KEY,
   name           TEXT NOT NULL,

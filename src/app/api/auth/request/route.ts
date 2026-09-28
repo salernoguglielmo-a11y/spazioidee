@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "L'invio delle email non è configurato su questo server, quindi non posso recapitare il link di accesso. Imposta SMTP_URL o RESEND_API_KEY e rilancia il deploy.",
+            "L'invio delle email non è configurato su questo server, quindi non posso recapitare il link di accesso. Usa il tuo link di accesso diretto, oppure chiedi a un amministratore di configurare SMTP_URL o RESEND_API_KEY.",
         },
         { status: 503 },
       );
