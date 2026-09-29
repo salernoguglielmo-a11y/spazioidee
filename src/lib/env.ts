@@ -84,6 +84,7 @@ export function missingConfig(): string[] {
   if (!env.authSecret) missing.push("AUTH_SECRET");
   if (env.aiMode === "api" && !env.anthropicApiKey) missing.push("ANTHROPIC_API_KEY");
   if (env.allowedEmails.length === 0 && env.adminEmails.length === 0) missing.push("ALLOWED_EMAILS");
-  if (!env.resendApiKey && !env.smtpUrl) missing.push("RESEND_API_KEY oppure SMTP_URL");
+  // L'email non è indispensabile: con i link personali si entra lo stesso.
+  // Resta segnalata come miglioria, non come mancanza bloccante.
   return missing;
 }
