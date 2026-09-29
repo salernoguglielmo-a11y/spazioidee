@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const genericResponse: Record<string, unknown> = {
     ok: true,
     message:
-      "Se l'indirizzo è autorizzato riceverai un link di accesso valido 15 minuti. Controlla anche la posta indesiderata.",
+      "Se l'indirizzo è autorizzato e l'invio è attivo per te, riceverai un link valido 15 minuti — controlla anche la posta indesiderata. Se non arriva nulla, su questo spazio puoi entrare con un link personale: chiedilo a chi lo amministra.",
   };
 
   if (!allowed) {
@@ -59,12 +59,13 @@ export async function POST(request: Request) {
     genericResponse.message =
       "Nessun servizio email è configurato: usa il link qui sotto per entrare. Configura RESEND_API_KEY o SMTP_URL per l'uso reale.";
   } else if (!delivery.delivered) {
-    return NextResponse.json(
-      {
-        error: `Invio email non riuscito (${delivery.channel}). Controlla la configurazione: ${delivery.error ?? ""}`.trim(),
-      },
-      { status: 500 },
+    // Un errore di consegna non deve rivelare chi è in allowlist: la risposta
+    // resta identica a quella di un indirizzo sconosciuto, e il motivo vero
+    // finisce nei log del server, dove serve a chi amministra.
+    console.error(
+      `Consegna non riuscita a ${email} via ${delivery.channel}: ${delivery.error ?? "motivo non riportato"}`,
     );
+    return NextResponse.json(genericResponse);
   }
 
   if (env.appUrl.includes("localhost") && delivery.delivered) {

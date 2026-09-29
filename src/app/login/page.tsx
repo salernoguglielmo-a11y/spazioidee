@@ -42,6 +42,13 @@ export default async function LoginPage({
         )}
 
         <LoginForm initialError={error} />
+
+        {emailAttiva ? (
+          <p className="muted mt-4 text-xs">
+            Non ricevi nulla? Su questo spazio alcuni indirizzi entrano con un link personale:
+            chiedilo a chi lo amministra.
+          </p>
+        ) : null}
       </div>
     </div>
   );
