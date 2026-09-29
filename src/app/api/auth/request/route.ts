@@ -62,9 +62,11 @@ export async function POST(request: Request) {
     // Un errore di consegna non deve rivelare chi è in allowlist: la risposta
     // resta identica a quella di un indirizzo sconosciuto, e il motivo vero
     // finisce nei log del server, dove serve a chi amministra.
-    console.error(
-      `Consegna non riuscita a ${email} via ${delivery.channel}: ${delivery.error ?? "motivo non riportato"}`,
-    );
+    const motivo = (delivery.error ?? "motivo non riportato").replace(/\s+/g, " ").slice(0, 300);
+    console.error(`Consegna non riuscita a ${email} via ${delivery.channel}: ${motivo}`);
+    // Finisce nel registro attività: chi amministra lo vede in /admin e può
+    // intervenire (verificare il dominio, o mandare un link personale).
+    await audit(email, "auth.consegna_fallita", email, `${delivery.channel}: ${motivo}`);
     return NextResponse.json(genericResponse);
   }
 
