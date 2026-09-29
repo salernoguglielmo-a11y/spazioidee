@@ -5,7 +5,14 @@ import { useState } from "react";
 import { MODULES } from "@/lib/analysis/modules";
 import { STAGES, type Project } from "@/lib/data/types";
 
-export default function ProjectSettingsForm({ project }: { project: Project }) {
+export default function ProjectSettingsForm({
+  project,
+  canManage,
+}: {
+  project: Project;
+  /** Chi ha creato il progetto, o un amministratore: può archiviare ed eliminare. */
+  canManage: boolean;
+}) {
   const router = useRouter();
   const [form, setForm] = useState({
     name: project.name,
@@ -198,12 +205,20 @@ export default function ProjectSettingsForm({ project }: { project: Project }) {
           {saving ? "Salvataggio…" : "Salva modifiche"}
         </button>
         {saved ? <span className="muted text-sm">Salvato.</span> : null}
-        <button className="btn" onClick={toggleArchive} disabled={saving}>
-          {project.archived ? "Ripristina progetto" : "Archivia progetto"}
-        </button>
-        <button className="btn" style={{ color: "var(--bad)" }} onClick={remove}>
-          Elimina progetto
-        </button>
+        {canManage ? (
+          <>
+            <button className="btn" onClick={toggleArchive} disabled={saving}>
+              {project.archived ? "Ripristina progetto" : "Archivia progetto"}
+            </button>
+            <button className="btn" style={{ color: "var(--bad)" }} onClick={remove}>
+              Elimina progetto
+            </button>
+          </>
+        ) : (
+          <span className="muted text-sm">
+            Archiviare ed eliminare il progetto spetta a chi lo ha creato.
+          </span>
+        )}
       </div>
     </div>
   );

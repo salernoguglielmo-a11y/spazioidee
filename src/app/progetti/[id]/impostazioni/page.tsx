@@ -27,7 +27,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ id: s
           calibrata.
         </p>
       </div>
-      <ProjectSettingsForm project={project} />
+      <ProjectSettingsForm project={project} canManage={canManage} />
 
       {env.projectVisibility === "shared" ? (
         <div className="panel p-5 text-sm">
